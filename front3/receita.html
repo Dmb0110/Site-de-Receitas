@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalhes da Receita</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fffaf4;
+      padding: 30px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h2 {
+      color: #ff7043;
+      margin-bottom: 20px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 30px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .modo-preparo {
+      background-color: #fff3e0;
+      padding: 15px;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    a {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #ff7043;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="javascript:history.back()">← Voltar</a>
+  <h2 id="titulo-receita">Receita</h2>
+  <h3>Ingredientes</h3>
+  <ul id="lista-ingredientes"></ul>
+  <h3>Modo de Preparo</h3>
+  <div class="modo-preparo" id="modo-preparo"></div>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    function getIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    async function buscarReceitaPorId(id) {
+      const res = await fetch(`${API_BASE}/especifico/${id}`);
+      if (!res.ok) throw new Error("Erro ao buscar receita");
+      return await res.json();
+    }
+
+    async function carregarDetalhes() {
+      const id = getIdFromURL();
+      const receita = await buscarReceitaPorId(id);
+
+      document.getElementById("titulo-receita").textContent = receita.nome_da_receita;
+
+      const ingredientes = receita.ingredientes.split(",").map(i => i.trim()).filter(i => i !== "");
+      const lista = document.getElementById("lista-ingredientes");
+      ingredientes.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        lista.appendChild(li);
+      });
+
+      document.getElementById("modo-preparo").textContent = receita.modo_de_preparo;
+    }
+
+    carregarDetalhes();
+  </script>
+
+</body>
+</html>
