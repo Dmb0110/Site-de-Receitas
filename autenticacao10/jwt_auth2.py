@@ -20,16 +20,18 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Criptografia de senha
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Funções auxiliares
+# Verifica se a senha fornecida corresponde ao hash armazenado
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
+# Gera um token JWT com tempo de expiração
 def create_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+# Decodifica o token JWT e retorna o campo 'sub'
 def decode_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -37,12 +39,14 @@ def decode_token(token: str):
     except JWTError:
         return None
 
+# Autentitica o usuário comparando credenciais com o banco
 def authenticate_user(db: Session, username: str, password: str):
     user = db.query(Usuario).filter(Usuario.username == username).first()
     if not user or not verify_password(password, user.password):
         return None
     return user
 
+# verifica se o token JWT está presente e válido
 def verificar_token(request: Request):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -60,6 +64,7 @@ def verificar_token(request: Request):
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
 
+# Endpoint de login: retorna token se credenciais forem válidas
 @router.post("/login10")
 async def login(request: LoginRequest,db: Session = Depends(get_db)):
     username = request.username
@@ -72,6 +77,7 @@ async def login(request: LoginRequest,db: Session = Depends(get_db)):
     token = create_token({"sub": username})
     return {"access_token": token}
 
+#Endpoint de registro de novo usuário
 @router.post("/register", status_code=201)
 async def register(request: RegisterRequest, db: Session = Depends(get_db)):
     existing_user = db.query(Usuario).filter(Usuario.username == request.username).first()
@@ -118,59 +124,3 @@ def enviar(request: Request, criar: CriarReceita, db: Session = Depends(get_db))
     db.commit()
     db.refresh(nova_receita)
     return nova_receita
-
-
-
-
-'''
-@router.post('/enviar',response_model=ReceitaOut)
-def enviar(request: Request,criar: CriarReceita,
-           db: Session = Depends(get_db)):
-    username = verificar_token(request)
-    nova_receita = Receita(**criar.dict())
-    db.add(nova_receita)
-    db.commit()
-    db.refresh(nova_receita)
-    return nova_receita
-'''
-
-
-'''
-from transformers import pipeline
-#from fastapi import Request, Depends
-#from sqlalchemy.orm import Session
-#from app.models import Receita
-#from app.schemas import CriarReceita, ReceitaOut
-#from app.database import get_db
-#from app.auth import verificar_token
-
-# Pipeline de reescrita inteligente
-rephrase = pipeline("text2text-generation", model="unicamp-dl/ptt5-base-portuguese-vocab")
-
-def corrigir_texto(texto: str) -> str:
-    prompt = f"Reescreva com ortografia e acentuação corretas: {texto}"
-    resultado = rephrase(prompt, max_length=512, do_sample=False)
-    return resultado[0]['generated_text']
-
-@router.post('/enviar', response_model=ReceitaOut)
-def enviar(request: Request, criar: CriarReceita, db: Session = Depends(get_db)):
-    username = verificar_token(request)
-
-    dados = criar.dict()
-
-    # Corrige campos de texto
-    if 'descricao' in dados:
-        dados['descricao'] = corrigir_texto(dados['descricao'])
-    if 'titulo' in dados:
-        dados['titulo'] = corrigir_texto(dados['titulo'])
-
-    # Se o modelo tiver campo autor
-    dados['autor'] = username
-
-    nova_receita = Receita(**dados)
-    db.add(nova_receita)
-    db.commit()
-    db.refresh(nova_receita)
-    return nova_receita
-'''
-
