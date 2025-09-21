@@ -11,7 +11,12 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY front3/ front3/
+COPY main.py .
+COPY models.py models.py
+COPY schemas.py schemas.py
+COPY crud.py crud.py
+COPY autenticacao10/ autenticacao10/
 
 EXPOSE 8000
 

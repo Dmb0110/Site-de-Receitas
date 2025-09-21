@@ -14,7 +14,9 @@ router = APIRouter()
 
 # Configurações do JWT
 SECRET_KEY = "sua_chave_secreta"
+
 ALGORITHM = "HS256"
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Criptografia de senha
