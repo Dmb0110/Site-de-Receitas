@@ -1,13 +1,11 @@
-from fastapi import APIRouter, Request, HTTPException, status, Depends
+from fastapi import APIRouter, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import jwt, JWTError, ExpiredSignatureError
 from passlib.context import CryptContext
-from pydantic import BaseModel
-from models import Usuario,Receita
+from models.models import Usuario,Receita
 from crud import get_db
 from schemas import LoginRequest,ReceitaOut,CriarReceita,RegisterRequest
-from typing import List
 import language_tool_python
 
 router = APIRouter()

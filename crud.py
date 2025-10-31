@@ -1,6 +1,6 @@
 from fastapi import APIRouter,HTTPException,Depends
 from sqlalchemy.orm import Session
-from models import SessionLocal,Receita,Usuario
+from models.models import SessionLocal,Receita,Usuario
 from schemas import ReceitaOut,CriarReceita,Atualizar,LoginRequest,RegisterRequest
 from typing import List
 from fastapi.responses import RedirectResponse

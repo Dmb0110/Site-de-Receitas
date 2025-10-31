@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from models import Base,engine
+from models.models import Base,engine
 from crud import router as crud_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
