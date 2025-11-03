@@ -6,7 +6,7 @@
       "use": "@vercel/python"
     },
     {
-      "src": "front/index.html",
+      "src": "front3/index.html",
       "use": "@vercel/static"
     }
   ],
